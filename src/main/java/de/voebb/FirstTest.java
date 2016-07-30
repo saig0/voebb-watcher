@@ -12,56 +12,28 @@
  */
 package de.voebb;
 
-import java.util.List;
-
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.htmlunit.HtmlUnitDriver;
-
 public class FirstTest {
 
-  public static void main(String[] args) {
-    // Create a new instance of the html unit driver
-    // Notice that the remainder of the code relies on the interface,
-    // not the implementation.
-    WebDriver driver = new HtmlUnitDriver(); // new FirefoxDriver();
+	public static void main(String[] args) {
 
-    // And now use this to visit Google
-    driver.get("https://www.voebb.de/");
+		BorrorStatusChecker checker = new BorrorStatusChecker();
 
-    // Find the text input element by its name
-    WebElement element = driver.findElement(By.xpath("//span[text() = 'Suche']/parent::a"));
-    element.click();
+		BorrorStatus status = checker.check("978-3-95590-020-5", "Spandau: Hauptbibliothek Spandau");
+		System.out.println(status);
 
-    element = driver.findElement(By.xpath("//span[text() = 'Freie Suche']/parent::label/following-sibling::input"));
+		try {
+			// not found
+			checker.check("978-3-95590-020-6", "Spandau: Hauptbibliothek Spandau");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-    String title = "Die Stadt der träumenden Bücher : ein Roman aus Zamonien";
-
-    // Enter something to search for
-    element.sendKeys(title);
-
-    // Now submit the form. WebDriver will find the form for us from the element
-    // element.submit();
-    element = driver.findElement(By.xpath("//input[@value = 'Suche starten']"));
-    element.click();
-
-    List<WebElement> elements = driver.findElements(By.xpath("//a[text()='" + title + "']"));
-    if (elements.size() == 1) {
-      // click
-      System.out.println("found");
-
-    } else if (elements.size() > 1) {
-      // more elements
-      System.out.println("found too much");
-
-    } else {
-      // no element
-      System.out.println("not found");
-    }
-
-    //Close the browser
-    driver.quit();
-  }
+		try {
+			// more than one found
+			checker.check("Essen f�r Sieger", "Spandau: Hauptbibliothek Spandau");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 }
