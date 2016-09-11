@@ -53,6 +53,12 @@
 			<groupId>org.camunda.bpm</groupId>
 			<artifactId>camunda-engine-plugin-connect</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.camunda.template-engines</groupId>
+			<artifactId>camunda-template-engines-freemarker</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-java</artifactId>

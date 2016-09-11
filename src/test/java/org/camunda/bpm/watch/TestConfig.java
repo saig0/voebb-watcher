@@ -1,5 +1,7 @@
 package org.camunda.bpm.watch;
 
+import org.camunda.bpm.watch.voebb.VoebbService;
+import org.mockito.Mockito;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -14,7 +16,7 @@ import com.icegreen.greenmail.util.ServerSetupTest;
 @EnableAutoConfiguration
 @ComponentScan( excludeFilters = {
 		@ComponentScan.Filter(type = FilterType.REGEX, pattern = "org.camunda.bpm.watch.Application"),
-		@ComponentScan.Filter(type = FilterType.REGEX, pattern = "org.camunda.bpm.watch.voebb.service.*")})
+		@ComponentScan.Filter(type = FilterType.REGEX, pattern = "org.camunda.bpm.watch.voebb.SeleniumVoebbService")})
 public class TestConfig {
 
 	@Bean(destroyMethod = "stop")
@@ -32,6 +34,11 @@ public class TestConfig {
 	@DependsOn("greenMail")
 	public Application application() {
 		return new Application();
+	}
+	
+	@Bean
+	public VoebbService printerService() {
+		return Mockito.mock(VoebbService.class);
 	}
 	
 }

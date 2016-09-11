@@ -14,14 +14,14 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${isAvailableForBorror}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_1vwacqy" sourceRef="ServiceTask_0wan44g" targetRef="ExclusiveGateway_08nzw3n" />
-    <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_02x2tof" name="15 min">
+    <bpmn:intermediateCatchEvent id="waitForCheckBorrorStateAgain" name="15 min">
       <bpmn:incoming>SequenceFlow_00anw9i</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_00jcas0</bpmn:outgoing>
       <bpmn:timerEventDefinition>
         <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT15M</bpmn:timeDuration>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
-    <bpmn:sequenceFlow id="SequenceFlow_00jcas0" sourceRef="IntermediateCatchEvent_02x2tof" targetRef="ServiceTask_1adca13" />
+    <bpmn:sequenceFlow id="SequenceFlow_00jcas0" sourceRef="waitForCheckBorrorStateAgain" targetRef="ServiceTask_1adca13" />
     <bpmn:exclusiveGateway id="ExclusiveGateway_0ho0s6m" default="SequenceFlow_0oowh9x">
       <bpmn:incoming>SequenceFlow_0d8l9v8</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0oowh9x</bpmn:outgoing>
@@ -53,10 +53,10 @@
       <bpmn:incoming>SequenceFlow_18j46ka</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0oetq2v</bpmn:outgoing>
       <bpmn:timerEventDefinition>
-        <bpmn:timeDate xsi:type="bpmn:tFormalExpression">${dateTime().withHourOfDay(14).toDate()}</bpmn:timeDate>
+        <bpmn:timeDate xsi:type="bpmn:tFormalExpression">${timeHelper.nextDateWithHour(14)}</bpmn:timeDate>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
-    <bpmn:sequenceFlow id="SequenceFlow_00anw9i" sourceRef="ExclusiveGateway_08nzw3n" targetRef="IntermediateCatchEvent_02x2tof" />
+    <bpmn:sequenceFlow id="SequenceFlow_00anw9i" sourceRef="ExclusiveGateway_08nzw3n" targetRef="waitForCheckBorrorStateAgain" />
     <bpmn:sequenceFlow id="SequenceFlow_0gwdvxl" sourceRef="StartEvent_1" targetRef="ExclusiveGateway_1xeqad2" />
     <bpmn:sequenceFlow id="SequenceFlow_1dah1om" sourceRef="ExclusiveGateway_1xeqad2" targetRef="ServiceTask_0rjx6m4" />
     <bpmn:sequenceFlow id="SequenceFlow_0z4m932" sourceRef="ServiceTask_0rjx6m4" targetRef="ExclusiveGateway_0drrqve" />
@@ -126,7 +126,7 @@ Signatur: ${state.getSignature()}
 Hinweis: ${state.getNote()}]]></camunda:script>
             </camunda:inputParameter>
           </camunda:inputOutput>
-          <camunda:connectorId>mai-send</camunda:connectorId>
+          <camunda:connectorId>mail-send</camunda:connectorId>
         </camunda:connector>
       </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1expz5n</bpmn:incoming>
@@ -217,7 +217,7 @@ Hinweis: ${state.getNote()}]]></camunda:script>
           <dc:Bounds x="1377.5" y="95" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="IntermediateCatchEvent_02x2tof_di" bpmnElement="IntermediateCatchEvent_02x2tof">
+      <bpmndi:BPMNShape id="IntermediateCatchEvent_02x2tof_di" bpmnElement="waitForCheckBorrorStateAgain">
         <dc:Bounds x="1575" y="102" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1548" y="138" width="90" height="20" />

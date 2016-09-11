@@ -15,7 +15,7 @@ package org.camunda.bpm.watch;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.camunda.bpm.watch.voebb.BorrorState;
-import org.camunda.bpm.watch.voebb.BorrorStateChecker;
+import org.camunda.bpm.watch.voebb.SeleniumBorrorStateChecker;
 import org.camunda.bpm.watch.voebb.MultipleResultsFoundException;
 import org.camunda.bpm.watch.voebb.NoResultFoundException;
 import org.junit.Before;
@@ -25,14 +25,14 @@ import org.junit.rules.ExpectedException;
 
 public class BorrorStateCheckerTest {
 
-	private BorrorStateChecker checker;
+	private SeleniumBorrorStateChecker checker;
 	
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 	
 	@Before
 	public void init() {
-		checker = new BorrorStateChecker();
+		checker = new SeleniumBorrorStateChecker();
 	}
 	
 	@Test

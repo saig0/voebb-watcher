@@ -8,7 +8,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.support.ui.Select;
 
-public class BorrorStateChecker {
+public class SeleniumBorrorStateChecker {
 
 	private final WebDriver driver = new HtmlUnitDriver(true);
 

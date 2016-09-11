@@ -1,6 +1,9 @@
 package org.camunda.bpm.watch;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import javax.mail.Flags.Flag;
 import javax.mail.Message;
@@ -14,8 +17,14 @@ import org.camunda.bpm.engine.ManagementService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.runtime.Job;
 import org.camunda.bpm.engine.runtime.JobQuery;
+import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstanceQuery;
 import org.camunda.bpm.extension.mail.MailContentType;
+import org.camunda.bpm.watch.voebb.BorrorState;
+import org.camunda.bpm.watch.voebb.MultipleResultsFoundException;
+import org.camunda.bpm.watch.voebb.NoResultFoundException;
+import org.camunda.bpm.watch.voebb.VoebbService;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +50,9 @@ public class VoebbProcessTest {
 	@Autowired
 	private GreenMail greenMail;
 	
+	@Autowired
+	private VoebbService voebbService;
+	
 	@Test
 	public void help() throws Exception {
 
@@ -65,40 +77,122 @@ public class VoebbProcessTest {
 	@Test
 	public void startWatching() throws Exception {
 
-		sendMessage("voebb watch 978-3-95590-020-5");
+		BorrorState borrorState = new BorrorState("Essen für Sieger", 
+				"Spandau: Hauptbibliothek Spandau", 
+				"HW 680 Essen", 
+				"Ausgeliehen Fällig am 15.09.2016", 
+				"Freihand", 
+				"bestellbar");
 		
+		when(voebbService.checkBorrorState(anyString(), anyString())).thenReturn(borrorState);
+
 		// check borrow state > not available
 		
-		waitForTimerJob();
+		sendMessage("voebb watch 978-3-95590-020-5");
 		
-		// check status of print job
+		// check borrow state > available 
+		waitForTimerJob();
+
+		borrorState = new BorrorState("Essen für Sieger", 
+				"Spandau: Hauptbibliothek Spandau", 
+				"HW 680 Essen", 
+				"Verfügbar", 
+				"Freihand", 
+				"bestellbar");
+		
+		when(voebbService.checkBorrorState(anyString(), anyString())).thenReturn(borrorState);
+		
 		Job timerJob = managementService.createJobQuery().timers().activityId("waitForCheckBorrowState").singleResult();
 		managementService.executeJob(timerJob.getId());
 				
-		// check borrow state > available 
-		
 		// send mail
+		greenMail.waitForIncomingEmail(2);
 		
-		// waitForProcessEnd();
+		waitForTimerJob();
 		
 		MimeMessage[] mails = greenMail.getReceivedMessages();
 	    assertThat(mails).hasSize(2);
 
 	    MimeMessage mail = mails[0];
-	    assertThat(mail.getSubject()).isEqualTo("veobb watch 978-3-95590-020-5");
+	    assertThat(mail.getSubject()).isEqualTo("voebb watch 978-3-95590-020-5");
 	    assertThat(mail.isSet(Flag.DELETED)).isTrue();
 	    
 	    mail = mails[1];
 	    assertThat(mail.getSubject()).isEqualTo("RE: voebb watch 978-3-95590-020-5");
-	    assertThat(GreenMailUtil.getBody(mail)).startsWith("Dein Buch 'Essen für Sieger' kann jetzt ausgeliehen werden.");
+	    assertThat(GreenMailUtil.getBody(mail)).contains("Dein Buch", "kann jetzt ausgeliehen werden.");
+	}
+	
+	@Test
+	public void borrowWhileWaiting() throws Exception {
+
+		BorrorState borrorState = new BorrorState("Essen für Sieger", 
+				"Spandau: Hauptbibliothek Spandau", 
+				"HW 680 Essen", 
+				"Verfügbar", 
+				"Freihand", 
+				"bestellbar");
+		when(voebbService.checkBorrorState(anyString(), anyString())).thenReturn(borrorState);
+
+		// check borrow state > available
+		
+		sendMessage("voebb watch 978-3-95590-020-5");
+		
+		// check borrow state > available 
+		waitForTimerJob();
+		
+		Job timerJob = managementService.createJobQuery().timers().activityId("waitForCheckBorrorStateAgain").singleResult();
+		managementService.executeJob(timerJob.getId());
+		
+		// check borrow state > not available 
+		waitForTimerJob();
+
+		borrorState = new BorrorState("Essen für Sieger", 
+				"Spandau: Hauptbibliothek Spandau", 
+				"HW 680 Essen", 
+				"Ausgeliehen Fällig am 15.09.2016", 
+				"Freihand", 
+				"bestellbar");
+		
+		when(voebbService.checkBorrorState(anyString(), anyString())).thenReturn(borrorState);
+		
+		timerJob = managementService.createJobQuery().timers().activityId("waitForCheckBorrorStateAgain").singleResult();
+		managementService.executeJob(timerJob.getId());
+				
+		// send mail
+		greenMail.waitForIncomingEmail(3);
+		
+		// check borrow state again
+		waitForTimerJob();
+		
+		timerJob = managementService.createJobQuery().timers().activityId("waitForCheckBorrowState").singleResult();
+		assertThat(timerJob).isNotNull();
+		
+		MimeMessage[] mails = greenMail.getReceivedMessages();
+	    assertThat(mails).hasSize(3);
+
+	    MimeMessage mail = mails[0];
+	    assertThat(mail.getSubject()).isEqualTo("voebb watch 978-3-95590-020-5");
+	    assertThat(mail.isSet(Flag.DELETED)).isTrue();
+	    
+	    mail = mails[1];
+	    assertThat(mail.getSubject()).isEqualTo("RE: voebb watch 978-3-95590-020-5");
+	    assertThat(GreenMailUtil.getBody(mail)).contains("Dein Buch", "kann jetzt ausgeliehen werden.");
+	    
+	    mail = mails[2];
+	    assertThat(mail.getSubject()).isEqualTo("RE: voebb watch 978-3-95590-020-5");
+	    assertThat(GreenMailUtil.getBody(mail)).contains("Dein Buch ist leider nicht mehr");
 	}
 	
 	@Test
 	public void stopWatching() throws Exception {
+		
+		BorrorState borrorState = mock(BorrorState.class);
+		when(voebbService.checkBorrorState(anyString(), anyString())).thenReturn(borrorState);
+
+		// check borrow state > not available
+		when(borrorState.isAvailableForBorrow()).thenReturn(false);
 
 		sendMessage("voebb watch 978-3-95590-020-5");
-		
-		// check borrow state > not available
 		
 		waitForTimerJob();
 		
@@ -130,12 +224,14 @@ public class VoebbProcessTest {
 	
 	@Test
 	public void startWatchingNoResult() throws Exception {
+		
+		// check borrow state > not result
+		when(voebbService.checkBorrorState(anyString(), anyString()))
+			.thenThrow(new NoResultFoundException("978-3-95590-020-6", "lib"));
 
 		sendMessage("voebb watch 978-3-95590-020-6");
 		
 		greenMail.waitForIncomingEmail(2);
-		
-		// check borrow state > not result
 		
 		// send mail
 		
@@ -155,12 +251,14 @@ public class VoebbProcessTest {
 	
 	@Test
 	public void startWatchingMultipleResult() throws Exception {
+		
+		// check borrow state > multiple results
+		when(voebbService.checkBorrorState(anyString(), anyString()))
+			.thenThrow(new MultipleResultsFoundException("978-3-95590-020-6", "lib"));
 
 		sendMessage("voebb watch Essen für Sieger");
 		
 		greenMail.waitForIncomingEmail(2);
-		
-		// check borrow state > multiple results
 		
 		// send mail
 		
@@ -176,6 +274,13 @@ public class VoebbProcessTest {
 	    mail = mails[1];
 	    assertThat(mail.getSubject()).isEqualTo("RE: voebb watch Essen für Sieger");
 	    assertThat(GreenMailUtil.getBody(mail)).contains("Bitte eindeutigen Suchtext verwenden.");
+	}
+	
+	@After
+	public void cleanUp() {
+		for (ProcessInstance processInstance : runtimeService.createProcessInstanceQuery().processDefinitionKey("mailDispatching").list()) {
+			runtimeService.deleteProcessInstance(processInstance.getId(), "test ends");
+		}
 	}
 	
 	private void sendMessage(String subject) throws MessagingException, AddressException {
