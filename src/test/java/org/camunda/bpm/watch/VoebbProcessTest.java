@@ -276,6 +276,45 @@ public class VoebbProcessTest {
 	    assertThat(GreenMailUtil.getBody(mail)).contains("Bitte eindeutigen Suchtext verwenden.");
 	}
 	
+	@Test
+	public void watchList() throws Exception {
+
+		BorrorState borrorState = mock(BorrorState.class);
+		when(voebbService.checkBorrorState(anyString(), anyString())).thenReturn(borrorState);
+
+		// check borrow state > not available
+		when(borrorState.isAvailableForBorrow()).thenReturn(false);
+
+		sendMessage("voebb watch 978-3-95590-020-5");
+		
+		waitForTimerJob();
+		
+		sendMessage("voebb list");
+		
+		greenMail.waitForIncomingEmail(3);
+		
+		// wait for process end
+		ProcessInstanceQuery query = runtimeService.createProcessInstanceQuery().processDefinitionKey("mailDispatching");
+		while(query.count() > 1) {
+			Thread.sleep(500);
+		}
+		
+		MimeMessage[] mails = greenMail.getReceivedMessages();
+	    assertThat(mails).hasSize(3);
+
+	    MimeMessage mail = mails[0];
+	    assertThat(mail.getSubject()).isEqualTo("voebb watch 978-3-95590-020-5");
+	    assertThat(mail.isSet(Flag.DELETED)).isTrue();
+	    
+	    mail = mails[1];
+	    assertThat(mail.getSubject()).isEqualTo("voebb list");
+	    assertThat(mail.isSet(Flag.DELETED)).isTrue();
+	    
+	    mail = mails[2];
+	    assertThat(mail.getSubject()).isEqualTo("RE: voebb list");
+	    assertThat(GreenMailUtil.getBody(mail)).startsWith("Merkliste: [Item [text=978-3-95590-020-5");
+	}
+	
 	@After
 	public void cleanUp() {
 		for (ProcessInstance processInstance : runtimeService.createProcessInstanceQuery().processDefinitionKey("mailDispatching").list()) {

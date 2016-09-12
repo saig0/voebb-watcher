@@ -45,6 +45,11 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_08vujci" sourceRef="ServiceTask_03swptu" targetRef="ExclusiveGateway_1xeqad2" />
     <bpmn:serviceTask id="ServiceTask_0rjx6m4" name="check if book is available" camunda:asyncBefore="true" camunda:delegateExpression="${checkBorrorStatusTask}">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:outputParameter name="lastCheckTime">${now()}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1dah1om</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0z4m932</bpmn:outgoing>
     </bpmn:serviceTask>
@@ -133,6 +138,11 @@ Hinweis: ${state.getNote()}]]></camunda:script>
       <bpmn:outgoing>SequenceFlow_1vwacqy</bpmn:outgoing>
     </bpmn:serviceTask>
     <bpmn:serviceTask id="ServiceTask_1adca13" name="check borrow state" camunda:asyncBefore="true" camunda:delegateExpression="${checkBorrorStatusTask}">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:outputParameter name="lastCheckTime">${now()}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_00jcas0</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0d8l9v8</bpmn:outgoing>
     </bpmn:serviceTask>
