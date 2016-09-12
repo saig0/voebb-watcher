@@ -5,7 +5,7 @@
       <bpmn:outgoing>SequenceFlow_0gwdvxl</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:exclusiveGateway id="ExclusiveGateway_0drrqve" default="SequenceFlow_18j46ka">
-      <bpmn:incoming>SequenceFlow_0z4m932</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1cngwb9</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_18j46ka</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_1expz5n</bpmn:outgoing>
     </bpmn:exclusiveGateway>
@@ -39,9 +39,9 @@
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="ExclusiveGateway_1xeqad2">
       <bpmn:incoming>SequenceFlow_08vujci</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_0oetq2v</bpmn:incoming>
-      <bpmn:incoming>SequenceFlow_0gwdvxl</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1dah1om</bpmn:outgoing>
+      <bpmn:incoming>SequenceFlow_1w79vi9</bpmn:incoming>
+      <bpmn:incoming>SequenceFlow_1dzdxhy</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1cngwb9</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_08vujci" sourceRef="ServiceTask_03swptu" targetRef="ExclusiveGateway_1xeqad2" />
     <bpmn:serviceTask id="ServiceTask_0rjx6m4" name="check if book is available" camunda:asyncBefore="true" camunda:delegateExpression="${checkBorrorStatusTask}">
@@ -50,21 +50,18 @@
           <camunda:outputParameter name="lastCheckTime">${now()}</camunda:outputParameter>
         </camunda:inputOutput>
       </bpmn:extensionElements>
-      <bpmn:incoming>SequenceFlow_1dah1om</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0z4m932</bpmn:outgoing>
+      <bpmn:incoming>SequenceFlow_0gwdvxl</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_131eiv2</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sequenceFlow id="SequenceFlow_0oetq2v" sourceRef="waitForCheckBorrowState" targetRef="ExclusiveGateway_1xeqad2" />
     <bpmn:intermediateCatchEvent id="waitForCheckBorrowState" name="14:00">
       <bpmn:incoming>SequenceFlow_18j46ka</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0oetq2v</bpmn:outgoing>
+      <bpmn:outgoing>SequenceFlow_1o5zuin</bpmn:outgoing>
       <bpmn:timerEventDefinition>
         <bpmn:timeDate xsi:type="bpmn:tFormalExpression">${timeHelper.nextDateWithHour(14)}</bpmn:timeDate>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="SequenceFlow_00anw9i" sourceRef="ExclusiveGateway_08nzw3n" targetRef="waitForCheckBorrorStateAgain" />
-    <bpmn:sequenceFlow id="SequenceFlow_0gwdvxl" sourceRef="StartEvent_1" targetRef="ExclusiveGateway_1xeqad2" />
-    <bpmn:sequenceFlow id="SequenceFlow_1dah1om" sourceRef="ExclusiveGateway_1xeqad2" targetRef="ServiceTask_0rjx6m4" />
-    <bpmn:sequenceFlow id="SequenceFlow_0z4m932" sourceRef="ServiceTask_0rjx6m4" targetRef="ExclusiveGateway_0drrqve" />
+    <bpmn:sequenceFlow id="SequenceFlow_0gwdvxl" sourceRef="StartEvent_1" targetRef="ServiceTask_0rjx6m4" />
     <bpmn:subProcess id="SubProcess_15uoc5e" triggeredByEvent="true">
       <bpmn:startEvent id="StartEvent_0tb6neu" name="no result">
         <bpmn:outgoing>SequenceFlow_04s1apk</bpmn:outgoing>
@@ -185,6 +182,34 @@ Hinweis: ${state.getNote()}]]></camunda:script>
         <bpmn:outgoing>SequenceFlow_02k9wl9</bpmn:outgoing>
       </bpmn:serviceTask>
     </bpmn:subProcess>
+    <bpmn:sequenceFlow id="SequenceFlow_1cngwb9" sourceRef="ExclusiveGateway_1xeqad2" targetRef="ExclusiveGateway_0drrqve" />
+    <bpmn:sequenceFlow id="SequenceFlow_1o5zuin" sourceRef="waitForCheckBorrowState" targetRef="ServiceTask_0m5lbg6" />
+    <bpmn:serviceTask id="ServiceTask_0m5lbg6" name="check if book is available" camunda:asyncBefore="true" camunda:delegateExpression="${checkBorrorStatusTask}">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:outputParameter name="lastCheckTime">${now()}</camunda:outputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_1o5zuin</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1dzdxhy</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_131eiv2" sourceRef="ServiceTask_0rjx6m4" targetRef="ServiceTask_15bw98h" />
+    <bpmn:sequenceFlow id="SequenceFlow_1w79vi9" sourceRef="ServiceTask_15bw98h" targetRef="ExclusiveGateway_1xeqad2" />
+    <bpmn:serviceTask id="ServiceTask_15bw98h" name="confirm request" camunda:asyncBefore="true">
+      <bpmn:extensionElements>
+        <camunda:connector>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="to">${mail.getFrom()}</camunda:inputParameter>
+            <camunda:inputParameter name="subject"><![CDATA[${'RE: '.concat(mail.subject)}]]></camunda:inputParameter>
+            <camunda:inputParameter name="text">Dein Buch wurde der Merkliste hinzugefügt.</camunda:inputParameter>
+          </camunda:inputOutput>
+          <camunda:connectorId>mail-send</camunda:connectorId>
+        </camunda:connector>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_131eiv2</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1w79vi9</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="SequenceFlow_1dzdxhy" sourceRef="ServiceTask_0m5lbg6" targetRef="ExclusiveGateway_1xeqad2" />
     <bpmn:textAnnotation id="TextAnnotation_04y23nh">    <bpmn:text>TODO: should check if it is available in the same library</bpmn:text>
 </bpmn:textAnnotation>
     <bpmn:association id="Association_0nzfswc" sourceRef="ServiceTask_1adca13" targetRef="TextAnnotation_04y23nh" />
@@ -195,29 +220,31 @@ Hinweis: ${state.getNote()}]]></camunda:script>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="watchProcess">
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="577" y="102" width="36" height="36" />
+        <dc:Bounds x="355" y="102" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="550" y="138" width="90" height="20" />
+          <dc:Bounds x="328" y="138" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_0drrqve_di" bpmnElement="ExclusiveGateway_0drrqve" isMarkerVisible="true">
-        <dc:Bounds x="1159" y="95" width="50" height="50" />
+        <dc:Bounds x="866" y="95" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1139" y="145" width="90" height="20" />
+          <dc:Bounds x="846" y="145" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_18j46ka_di" bpmnElement="SequenceFlow_18j46ka">
-        <di:waypoint xsi:type="dc:Point" x="1184" y="95" />
-        <di:waypoint xsi:type="dc:Point" x="1184" y="2" />
+        <di:waypoint xsi:type="dc:Point" x="916" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="990" y="120" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1172" y="24" width="90" height="20" />
+          <dc:Bounds x="896" y="99" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1expz5n_di" bpmnElement="SequenceFlow_1expz5n">
-        <di:waypoint xsi:type="dc:Point" x="1209" y="120" />
-        <di:waypoint xsi:type="dc:Point" x="1307" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="891" y="145" />
+        <di:waypoint xsi:type="dc:Point" x="891" y="227" />
+        <di:waypoint xsi:type="dc:Point" x="1349" y="227" />
+        <di:waypoint xsi:type="dc:Point" x="1349" y="160" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1204.5" y="95" width="90" height="20" />
+          <dc:Bounds x="901" y="196" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1vwacqy_di" bpmnElement="SequenceFlow_1vwacqy">
@@ -291,7 +318,7 @@ Hinweis: ${state.getNote()}]]></camunda:script>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ServiceTask_0rjx6m4_di" bpmnElement="ServiceTask_0rjx6m4">
-        <dc:Bounds x="928" y="80" width="100" height="80" />
+        <dc:Bounds x="465" y="80" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ServiceTask_1gd8i3i_di" bpmnElement="ServiceTask_1gd8i3i">
         <dc:Bounds x="1297" y="374" width="100" height="80" />
@@ -299,18 +326,10 @@ Hinweis: ${state.getNote()}]]></camunda:script>
       <bpmndi:BPMNShape id="ServiceTask_19635ju_di" bpmnElement="ServiceTask_19635ju">
         <dc:Bounds x="929" y="373" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="SequenceFlow_0oetq2v_di" bpmnElement="SequenceFlow_0oetq2v">
-        <di:waypoint xsi:type="dc:Point" x="1166" y="-16" />
-        <di:waypoint xsi:type="dc:Point" x="792" y="-16" />
-        <di:waypoint xsi:type="dc:Point" x="792" y="95" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="943" y="7" width="90" height="20" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="IntermediateCatchEvent_0jrof93_di" bpmnElement="waitForCheckBorrowState">
-        <dc:Bounds x="1166" y="-34" width="36" height="36" />
+        <dc:Bounds x="990" y="102" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1142" y="-53" width="90" height="20" />
+          <dc:Bounds x="966" y="83" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_00anw9i_di" bpmnElement="SequenceFlow_00anw9i">
@@ -321,24 +340,10 @@ Hinweis: ${state.getNote()}]]></camunda:script>
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0gwdvxl_di" bpmnElement="SequenceFlow_0gwdvxl">
-        <di:waypoint xsi:type="dc:Point" x="613" y="120" />
-        <di:waypoint xsi:type="dc:Point" x="767" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="391" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="465" y="120" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="645" y="110" width="90" height="20" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_1dah1om_di" bpmnElement="SequenceFlow_1dah1om">
-        <di:waypoint xsi:type="dc:Point" x="817" y="120" />
-        <di:waypoint xsi:type="dc:Point" x="928" y="120" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="827.5" y="110" width="90" height="20" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="SequenceFlow_0z4m932_di" bpmnElement="SequenceFlow_0z4m932">
-        <di:waypoint xsi:type="dc:Point" x="1028" y="120" />
-        <di:waypoint xsi:type="dc:Point" x="1159" y="120" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1048.5" y="110" width="90" height="20" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="SubProcess_15uoc5e_di" bpmnElement="SubProcess_15uoc5e" isExpanded="true">
@@ -447,6 +452,49 @@ Hinweis: ${state.getNote()}]]></camunda:script>
       <bpmndi:BPMNShape id="ServiceTask_00i9m1l_di" bpmnElement="ServiceTask_00i9m1l">
         <dc:Bounds x="1699.1936127744511" y="370" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1cngwb9_di" bpmnElement="SequenceFlow_1cngwb9">
+        <di:waypoint xsi:type="dc:Point" x="817" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="866" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="818.5" y="110" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1o5zuin_di" bpmnElement="SequenceFlow_1o5zuin">
+        <di:waypoint xsi:type="dc:Point" x="1026" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="1083" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1009.5" y="110" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_0m5lbg6_di" bpmnElement="ServiceTask_0m5lbg6">
+        <dc:Bounds x="1083" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_131eiv2_di" bpmnElement="SequenceFlow_131eiv2">
+        <di:waypoint xsi:type="dc:Point" x="565" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="621" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="548" y="110" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_1w79vi9_di" bpmnElement="SequenceFlow_1w79vi9">
+        <di:waypoint xsi:type="dc:Point" x="721" y="120" />
+        <di:waypoint xsi:type="dc:Point" x="767" y="120" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="699" y="110" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_15bw98h_di" bpmnElement="ServiceTask_15bw98h">
+        <dc:Bounds x="621" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1dzdxhy_di" bpmnElement="SequenceFlow_1dzdxhy">
+        <di:waypoint xsi:type="dc:Point" x="1133" y="80" />
+        <di:waypoint xsi:type="dc:Point" x="1133" y="2" />
+        <di:waypoint xsi:type="dc:Point" x="792" y="2" />
+        <di:waypoint xsi:type="dc:Point" x="792" y="95" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="905" y="110" width="90" height="20" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

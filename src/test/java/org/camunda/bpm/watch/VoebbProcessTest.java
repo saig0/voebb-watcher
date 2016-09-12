@@ -106,18 +106,22 @@ public class VoebbProcessTest {
 		managementService.executeJob(timerJob.getId());
 				
 		// send mail
-		greenMail.waitForIncomingEmail(2);
+		greenMail.waitForIncomingEmail(3);
 		
 		waitForTimerJob();
 		
 		MimeMessage[] mails = greenMail.getReceivedMessages();
-	    assertThat(mails).hasSize(2);
+	    assertThat(mails).hasSize(3);
 
 	    MimeMessage mail = mails[0];
 	    assertThat(mail.getSubject()).isEqualTo("voebb watch 978-3-95590-020-5");
 	    assertThat(mail.isSet(Flag.DELETED)).isTrue();
 	    
 	    mail = mails[1];
+	    assertThat(mail.getSubject()).isEqualTo("RE: voebb watch 978-3-95590-020-5");
+	    assertThat(GreenMailUtil.getBody(mail)).contains("Dein Buch wurde der Merkliste");
+	    
+	    mail = mails[2];
 	    assertThat(mail.getSubject()).isEqualTo("RE: voebb watch 978-3-95590-020-5");
 	    assertThat(GreenMailUtil.getBody(mail)).contains("Dein Buch", "kann jetzt ausgeliehen werden.");
 	}
@@ -159,7 +163,7 @@ public class VoebbProcessTest {
 		managementService.executeJob(timerJob.getId());
 				
 		// send mail
-		greenMail.waitForIncomingEmail(3);
+		greenMail.waitForIncomingEmail(4);
 		
 		// check borrow state again
 		waitForTimerJob();
@@ -168,7 +172,7 @@ public class VoebbProcessTest {
 		assertThat(timerJob).isNotNull();
 		
 		MimeMessage[] mails = greenMail.getReceivedMessages();
-	    assertThat(mails).hasSize(3);
+	    assertThat(mails).hasSize(4);
 
 	    MimeMessage mail = mails[0];
 	    assertThat(mail.getSubject()).isEqualTo("voebb watch 978-3-95590-020-5");
@@ -176,9 +180,13 @@ public class VoebbProcessTest {
 	    
 	    mail = mails[1];
 	    assertThat(mail.getSubject()).isEqualTo("RE: voebb watch 978-3-95590-020-5");
-	    assertThat(GreenMailUtil.getBody(mail)).contains("Dein Buch", "kann jetzt ausgeliehen werden.");
+	    assertThat(GreenMailUtil.getBody(mail)).contains("Dein Buch wurde der Merkliste");
 	    
 	    mail = mails[2];
+	    assertThat(mail.getSubject()).isEqualTo("RE: voebb watch 978-3-95590-020-5");
+	    assertThat(GreenMailUtil.getBody(mail)).contains("Dein Buch", "kann jetzt ausgeliehen werden.");
+	    
+	    mail = mails[3];
 	    assertThat(mail.getSubject()).isEqualTo("RE: voebb watch 978-3-95590-020-5");
 	    assertThat(GreenMailUtil.getBody(mail)).contains("Dein Buch ist leider nicht mehr");
 	}
@@ -202,22 +210,26 @@ public class VoebbProcessTest {
 		
 		// send mail
 		
-		greenMail.waitForIncomingEmail(3);
+		greenMail.waitForIncomingEmail(4);
 		
 		waitForProcessEnd();
 		
 		MimeMessage[] mails = greenMail.getReceivedMessages();
-	    assertThat(mails).hasSize(3);
+	    assertThat(mails).hasSize(4);
 
 	    MimeMessage mail = mails[0];
 	    assertThat(mail.getSubject()).isEqualTo("voebb watch 978-3-95590-020-5");
 	    assertThat(mail.isSet(Flag.DELETED)).isTrue();
-	    
+	   
 	    mail = mails[1];
 	    assertThat(mail.getSubject()).isEqualTo("voebb delete 978-3-95590-020-5");
 	    assertThat(mail.isSet(Flag.DELETED)).isTrue();
 	    
 	    mail = mails[2];
+	    assertThat(mail.getSubject()).isEqualTo("RE: voebb watch 978-3-95590-020-5");
+	    assertThat(GreenMailUtil.getBody(mail)).contains("Dein Buch wurde der Merkliste");
+	    
+	    mail = mails[3];
 	    assertThat(mail.getSubject()).isEqualTo("RE: voebb watch 978-3-95590-020-5");
 	    assertThat(GreenMailUtil.getBody(mail)).startsWith("Buch von Merkliste entfernt.");
 	}
@@ -291,7 +303,7 @@ public class VoebbProcessTest {
 		
 		sendMessage("voebb list");
 		
-		greenMail.waitForIncomingEmail(3);
+		greenMail.waitForIncomingEmail(4);
 		
 		// wait for process end
 		ProcessInstanceQuery query = runtimeService.createProcessInstanceQuery().processDefinitionKey("mailDispatching");
@@ -300,7 +312,7 @@ public class VoebbProcessTest {
 		}
 		
 		MimeMessage[] mails = greenMail.getReceivedMessages();
-	    assertThat(mails).hasSize(3);
+	    assertThat(mails).hasSize(4);
 
 	    MimeMessage mail = mails[0];
 	    assertThat(mail.getSubject()).isEqualTo("voebb watch 978-3-95590-020-5");
@@ -311,6 +323,10 @@ public class VoebbProcessTest {
 	    assertThat(mail.isSet(Flag.DELETED)).isTrue();
 	    
 	    mail = mails[2];
+	    assertThat(mail.getSubject()).isEqualTo("RE: voebb watch 978-3-95590-020-5");
+	    assertThat(GreenMailUtil.getBody(mail)).contains("Dein Buch wurde der Merkliste");
+	    
+	    mail = mails[3];
 	    assertThat(mail.getSubject()).isEqualTo("RE: voebb list");
 	    assertThat(GreenMailUtil.getBody(mail)).startsWith("Merkliste: [Item [text=978-3-95590-020-5");
 	}
