@@ -18,7 +18,8 @@ public class ExtractSearchTextTask implements JavaDelegate {
 		EnsureUtil.ensureNotNull("subject prefix", subjectPrefix);
 		EnsureUtil.ensureNotNull("mail", mail);
 		
-		String subject = mail.getSubject();
+		String subject = mail.getSubject().toLowerCase();
+		subjectPrefix = subjectPrefix.toLowerCase();
 		
 		if (subject.startsWith(subjectPrefix)) {
 			String text = subject.substring(subjectPrefix.length()).trim();

@@ -124,7 +124,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<mainClass>org.camunda.bpm.printer.Application</mainClass>
+					<mainClass>org.camunda.bpm.watch.Application</mainClass>
 					<layout>ZIP</layout>
 				</configuration>
 				<executions>

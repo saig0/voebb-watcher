@@ -14,36 +14,47 @@ import org.junit.Test;
 public class TimeHelperTest {
 
 	@Test
-	public void withHour_before() {
+	public void nextDateAt_before() {
 		LocalDateTime currentTime = LocalDateTime.parse("2016-09-11T11:00:00");
 		Instant currentInstance = currentTime.atZone(ZoneId.systemDefault()).toInstant();
 		ClockUtil.setCurrentTime(new Date(currentInstance.toEpochMilli()));
 
 		TimeHelper helper = new TimeHelper();
 
-		assertThat(helper.nextDateWithHour(14)).isEqualTo("2016-09-11T14:00");
+		assertThat(helper.nextDateAt("14:00")).isEqualTo("2016-09-11T14:00");
 	}
 	
 	@Test
-	public void withHour_after() {
+	public void nextDateAt_after() {
 		LocalDateTime currentTime = LocalDateTime.parse("2016-09-11T15:00:00");
 		Instant currentInstance = currentTime.atZone(ZoneId.systemDefault()).toInstant();
 		ClockUtil.setCurrentTime(new Date(currentInstance.toEpochMilli()));
 
 		TimeHelper helper = new TimeHelper();
 
-		assertThat(helper.nextDateWithHour(14)).isEqualTo("2016-09-12T14:00");
+		assertThat(helper.nextDateAt("14:00")).isEqualTo("2016-09-12T14:00");
 	}
 	
 	@Test
-	public void withHour_equal() {
+	public void nextDateAt_equal() {
 		LocalDateTime currentTime = LocalDateTime.parse("2016-09-11T14:00:00");
 		Instant currentInstance = currentTime.atZone(ZoneId.systemDefault()).toInstant();
 		ClockUtil.setCurrentTime(new Date(currentInstance.toEpochMilli()));
 
 		TimeHelper helper = new TimeHelper();
 
-		assertThat(helper.nextDateWithHour(14)).isEqualTo("2016-09-12T14:00");
+		assertThat(helper.nextDateAt("14:00")).isEqualTo("2016-09-12T14:00");
 	}
 
+	@Test
+	public void nextDateAt_withMinutes() {
+		LocalDateTime currentTime = LocalDateTime.parse("2016-09-11T07:00:00");
+		Instant currentInstance = currentTime.atZone(ZoneId.systemDefault()).toInstant();
+		ClockUtil.setCurrentTime(new Date(currentInstance.toEpochMilli()));
+
+		TimeHelper helper = new TimeHelper();
+
+		assertThat(helper.nextDateAt("07:45")).isEqualTo("2016-09-11T07:45");
+	}
+	
 }

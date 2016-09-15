@@ -47,12 +47,14 @@
             <camunda:inputParameter name="text"><![CDATA[Du kannst deine VOEBB Merkliste via Mail mit folgendem Betreff organisieren: 
 	* voebb watch TEXT 	-> fügt den Titel auf die Merkliste hinzu
 	* voebb delete TEXT -> entfernt den Titel von der Merkliste
+	* voebb list		-> gibt die Merkliste zurück
 	
 Ersetze TEXT mit der ISBN des Titels oder einem eindeutigen Suchbegriff.
 	
 Beispiele:
 	* voebb watch 978-3-95590-020-5
-	* voebb delete 978-3-95590-020-6]]></camunda:inputParameter>
+	* voebb delete 978-3-95590-020-6
+	* voebb list]]></camunda:inputParameter>
           </camunda:inputOutput>
           <camunda:connectorId>mail-send</camunda:connectorId>
         </camunda:connector>
