@@ -222,11 +222,11 @@ Hinweis: ${state.getNote()}]]></camunda:script>
       <bpmn:outgoing>SequenceFlow_1jmdriw</bpmn:outgoing>
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="SequenceFlow_1jmdriw" sourceRef="ExclusiveGateway_12ffu48" targetRef="ServiceTask_0m5lbg6" />
-    <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_1y0pr0b" name="07:45">
+    <bpmn:intermediateCatchEvent id="IntermediateCatchEvent_1y0pr0b" name="06:45">
       <bpmn:incoming>SequenceFlow_1sc9mgr</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_0yo8e02</bpmn:outgoing>
       <bpmn:timerEventDefinition>
-        <bpmn:timeDate xsi:type="bpmn:tFormalExpression"><![CDATA[${timeHelper.nextDateAt("07:45")}]]></bpmn:timeDate>
+        <bpmn:timeDate xsi:type="bpmn:tFormalExpression"><![CDATA[${timeHelper.nextDateAt("06:45")}]]></bpmn:timeDate>
       </bpmn:timerEventDefinition>
     </bpmn:intermediateCatchEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1sc9mgr" sourceRef="EventBasedGateway_0iw3av2" targetRef="IntermediateCatchEvent_1y0pr0b" />

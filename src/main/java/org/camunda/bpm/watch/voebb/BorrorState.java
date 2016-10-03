@@ -6,6 +6,9 @@ public class BorrorState implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	public static String STATE_NO_ITEM_FOUND = "no item found";
+	public static String STATE_MULTIPLE_ITEMS_FOUND = "multiple items found";
+	
 	private final String title;
 	private final String library;
 	private final String signature;
@@ -13,6 +16,10 @@ public class BorrorState implements Serializable {
 	private final String location;
 	private final String note;
 
+	private BorrorState(String library, String state) {
+		this(null, library, null, state, null, null);
+	}
+	
 	public BorrorState(String title, String library, String signature, String state, String location, String note) {
 		this.title = title;
 		this.library = library;
@@ -56,4 +63,16 @@ public class BorrorState implements Serializable {
 				+ state + ", location=" + location + ", note=" + note + "]";
 	}
 
+	public boolean isValid() {
+		return !state.equals(STATE_NO_ITEM_FOUND) && !state.equals(STATE_MULTIPLE_ITEMS_FOUND);
+	}
+	
+	public static BorrorState notItemFound(String library) {
+		return new BorrorState(library, STATE_NO_ITEM_FOUND);
+	}
+	
+	public static BorrorState multipleItemsFound(String library) {
+		return new BorrorState(library, STATE_MULTIPLE_ITEMS_FOUND);
+	}
+	
 }

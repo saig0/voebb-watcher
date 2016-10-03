@@ -29,9 +29,11 @@ public class SeleniumBorrorStateChecker {
 		element = driver.findElement(By.xpath("//input[@value = 'Suche starten']"));
 		element.click();
 
-		ensureHasResults(text, library);	
-		ensureSingleResult(text, library);
-		
+		if(hasNoResults()) {
+			return BorrorState.	notItemFound(library);		
+		} else if (hasMultipleResults()) {
+			return BorrorState.multipleItemsFound(library);
+		}
 		
 		element = driver.findElement(By.xpath("(//input[@value = 'Verfügbarkeit / Bestellen'])[1]"));
 		element.click();
@@ -49,20 +51,16 @@ public class SeleniumBorrorStateChecker {
 		return new BorrorState(title, library, signature, status, location, note);
 	}
 
-	private void ensureHasResults(String text, String library) {
+	private boolean hasNoResults() {
 		List<WebElement> elements = driver
 				.findElements(By.xpath("//h1[contains(text(), 'Ihre Suche erzielte keinen Treffer.')]"));
-		if(!elements.isEmpty()) {
-			throw new NoResultFoundException(text, library);
-		}
+		return !elements.isEmpty();
 	}
 
-	private void ensureSingleResult(String text, String library) {
+	private boolean hasMultipleResults() {
 		List<WebElement> elements = driver
 				.findElements(By.xpath("//p[@id='breadcrumb']//span[contains(text(),'Trefferliste')]"));
-		if(!elements.isEmpty()) {
-			throw new MultipleResultsFoundException(text, library);
-		}
+		return !elements.isEmpty();
 	}
 
 }

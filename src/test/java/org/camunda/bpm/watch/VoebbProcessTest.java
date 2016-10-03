@@ -2,7 +2,6 @@ package org.camunda.bpm.watch;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import javax.mail.Flags.Flag;
@@ -21,8 +20,6 @@ import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstanceQuery;
 import org.camunda.bpm.extension.mail.MailContentType;
 import org.camunda.bpm.watch.voebb.BorrorState;
-import org.camunda.bpm.watch.voebb.MultipleResultsFoundException;
-import org.camunda.bpm.watch.voebb.NoResultFoundException;
 import org.camunda.bpm.watch.voebb.VoebbService;
 import org.junit.After;
 import org.junit.Test;
@@ -194,12 +191,16 @@ public class VoebbProcessTest {
 	@Test
 	public void stopWatching() throws Exception {
 		
-		BorrorState borrorState = mock(BorrorState.class);
+		BorrorState borrorState = new BorrorState("Essen für Sieger", 
+				"Spandau: Hauptbibliothek Spandau", 
+				"HW 680 Essen", 
+				"Ausgeliehen Fällig am 15.09.2016", 
+				"Freihand", 
+				"bestellbar");
 		when(voebbService.checkBorrorState(anyString(), anyString())).thenReturn(borrorState);
 
 		// check borrow state > not available
-		when(borrorState.isAvailableForBorrow()).thenReturn(false);
-
+		
 		sendMessage("voebb watch 978-3-95590-020-5");
 		
 		waitForTimerJob();
@@ -239,7 +240,7 @@ public class VoebbProcessTest {
 		
 		// check borrow state > not result
 		when(voebbService.checkBorrorState(anyString(), anyString()))
-			.thenThrow(new NoResultFoundException("978-3-95590-020-6", "lib"));
+			.thenReturn(BorrorState.notItemFound("lib"));
 
 		sendMessage("voebb watch 978-3-95590-020-6");
 		
@@ -266,7 +267,7 @@ public class VoebbProcessTest {
 		
 		// check borrow state > multiple results
 		when(voebbService.checkBorrorState(anyString(), anyString()))
-			.thenThrow(new MultipleResultsFoundException("978-3-95590-020-6", "lib"));
+			.thenReturn(BorrorState.multipleItemsFound("lib"));
 
 		sendMessage("voebb watch Essen für Sieger");
 		
@@ -291,11 +292,15 @@ public class VoebbProcessTest {
 	@Test
 	public void watchList() throws Exception {
 
-		BorrorState borrorState = mock(BorrorState.class);
+		BorrorState borrorState = new BorrorState("Essen für Sieger", 
+				"Spandau: Hauptbibliothek Spandau", 
+				"HW 680 Essen", 
+				"Ausgeliehen Fällig am 15.09.2016", 
+				"Freihand", 
+				"bestellbar");
 		when(voebbService.checkBorrorState(anyString(), anyString())).thenReturn(borrorState);
 
 		// check borrow state > not available
-		when(borrorState.isAvailableForBorrow()).thenReturn(false);
 
 		sendMessage("voebb watch 978-3-95590-020-5");
 		

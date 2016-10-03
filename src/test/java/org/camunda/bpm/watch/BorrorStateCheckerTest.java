@@ -16,19 +16,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.camunda.bpm.watch.voebb.BorrorState;
 import org.camunda.bpm.watch.voebb.SeleniumBorrorStateChecker;
-import org.camunda.bpm.watch.voebb.MultipleResultsFoundException;
-import org.camunda.bpm.watch.voebb.NoResultFoundException;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 public class BorrorStateCheckerTest {
 
 	private SeleniumBorrorStateChecker checker;
-	
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
 	
 	@Before
 	public void init() {
@@ -46,16 +39,20 @@ public class BorrorStateCheckerTest {
 	
 	@Test
 	public void noResult() {
-		thrown.expect(NoResultFoundException.class);
+		BorrorState state = checker.check("978-3-95590-020-6", "Spandau: Hauptbibliothek Spandau");
 		
-		checker.check("978-3-95590-020-6", "Spandau: Hauptbibliothek Spandau");
+		assertThat(state).isNotNull();
+		assertThat(state.isValid()).isFalse();
+		assertThat(state.getState()).isEqualTo(BorrorState.STATE_NO_ITEM_FOUND);
 	}
 	
 	@Test
 	public void multipleResults() {
-		thrown.expect(MultipleResultsFoundException.class);
+		BorrorState state = checker.check("Essen für Sieger", "Spandau: Hauptbibliothek Spandau");
 		
-		checker.check("Essen für Sieger", "Spandau: Hauptbibliothek Spandau");
+		assertThat(state).isNotNull();
+		assertThat(state.isValid()).isFalse();
+		assertThat(state.getState()).isEqualTo(BorrorState.STATE_MULTIPLE_ITEMS_FOUND);
 	}
 
 }
