@@ -25,22 +25,21 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.GreenMailUtil;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = { TestConfig.class })
+@ContextConfiguration(classes = { TestConfig.class })
 @DirtiesContext(classMode = ClassMode.BEFORE_EACH_TEST_METHOD)
 public class VoebbProcessTest {
-
+	
 	@Autowired
 	private ManagementService managementService;
-
 	@Autowired
 	private RuntimeService runtimeService;
 
@@ -311,7 +310,7 @@ public class VoebbProcessTest {
 		greenMail.waitForIncomingEmail(4);
 		
 		// wait for process end
-		ProcessInstanceQuery query = runtimeService.createProcessInstanceQuery().processDefinitionKey("mailDispatching");
+		ProcessInstanceQuery query = runtimeService.createProcessInstanceQuery().processDefinitionKey("voebbMailDispatching");
 		while(query.count() > 1) {
 			Thread.sleep(500);
 		}
@@ -338,7 +337,7 @@ public class VoebbProcessTest {
 	
 	@After
 	public void cleanUp() {
-		for (ProcessInstance processInstance : runtimeService.createProcessInstanceQuery().processDefinitionKey("mailDispatching").list()) {
+		for (ProcessInstance processInstance : runtimeService.createProcessInstanceQuery().processDefinitionKey("voebbMailDispatching").list()) {
 			runtimeService.deleteProcessInstance(processInstance.getId(), "test ends");
 		}
 	}
