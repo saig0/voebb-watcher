@@ -30,7 +30,7 @@ public class SeleniumBorrorStateChecker {
 		element.click();
 
 		if(hasNoResults()) {
-			return BorrorState.	notItemFound(library);		
+			return BorrorState.notItemFound(library);		
 		} else if (hasMultipleResults()) {
 			return BorrorState.multipleItemsFound(library);
 		}
@@ -41,14 +41,34 @@ public class SeleniumBorrorStateChecker {
 		String title = driver.findElement(By.xpath("//p//*[contains(text(), 'Titel:')]")).getText();
 		title = title.substring("Titel:".length()).trim();
 		
-		String row = "//td[contains(text(),'" + library + "')]/following-sibling::td";
+		List<WebElement> elements = driver.findElements(By.xpath("//table[thead/tr/th/text()='Bibliothek']/tbody/tr"));
+		if (elements.isEmpty()) {
+			throw new RuntimeException("found no borrow state for library '" + library + "'");
+		}
+	
+		BorrorState state = null;
+		
+		for (int i = 1; i <= elements.size(); i++) {
+			state = getBorrorState(i, title, library);
+			
+			if (state.isAvailableForBorrow()) {
+				return state;
+			}
+		}
+		
+		return state;
+	}
+	
+	private BorrorState getBorrorState(int row, String title, String library) {
+		
+		String path = "//table[thead/tr/th/text()='Bibliothek']/tbody/tr[" + row + "]/td";
 
-		String signature = driver.findElement(By.xpath(row + "[1]")).getText();
-		String status = driver.findElement(By.xpath(row + "[2]")).getText();
-		String location = driver.findElement(By.xpath(row + "[3]")).getText();
-		String note = driver.findElement(By.xpath(row + "[4]")).getText();
+		String signature = driver.findElement(By.xpath(path + "[2]")).getText();
+		String status = driver.findElement(By.xpath(path + "[3]")).getText();
+		String location = driver.findElement(By.xpath(path + "[4]")).getText();
+		String note = driver.findElement(By.xpath(path + "[5]")).getText();
 
-		return new BorrorState(title, library, signature, status, location, note);
+		return new BorrorState(title, library, signature, status, location, note);		
 	}
 
 	private boolean hasNoResults() {

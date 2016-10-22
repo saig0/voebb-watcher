@@ -54,5 +54,14 @@ public class BorrorStateCheckerTest {
 		assertThat(state.isValid()).isFalse();
 		assertThat(state.getState()).isEqualTo(BorrorState.STATE_MULTIPLE_ITEMS_FOUND);
 	}
+	
+	@Test
+	public void multipleEntriesForLibrary() {
+		BorrorState state = checker.check("978-3-8001-0321-8", "ZLB: Berliner Stadtbibliothek (BStB)");
+		
+		assertThat(state).isNotNull();
+		assertThat(state.getTitle()).contains("Tiere & Pflanzen");
+		assertThat(state.getLibrary()).isEqualTo("ZLB: Berliner Stadtbibliothek (BStB)");
+	}
 
 }
